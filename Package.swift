@@ -34,7 +34,7 @@ let package = Package(
         ),
         .testTarget(
             name: "FeedingTimerModelsTests",
-            dependencies: ["Models"]
+            dependencies: ["Models", "Statistics"]
         ),
     ]
 )

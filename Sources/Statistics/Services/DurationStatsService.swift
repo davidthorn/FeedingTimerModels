@@ -368,7 +368,7 @@ extension DurationStatsService: TimeOfDayBucketStatsServiceProtocol {
             feeds: windowed,
             scenario: scenario,
             outlierPolicy: outlierPolicy,
-            recencyHalfLifeHours: recencyHalfLifeHours,
+            recencyHalfLifeHours: nil,
             calendar: calendar,
             now: now
         )
