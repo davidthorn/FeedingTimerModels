@@ -78,6 +78,7 @@ public extension FeedingStatsService {
         outlierPolicy: OutlierPolicy,
         scenario: AverageDurationScenario = .all,
         rollingHoursBack: Int? = nil,
+        recencyHalfLifeHours: Double? = nil,
         now: Date = .now,
         calendar: Calendar = .current
     ) -> (overall: TimeInterval, groups: [GroupedAverage]) {
@@ -88,6 +89,7 @@ public extension FeedingStatsService {
             grouping: grouping,
             outlierPolicy: outlierPolicy,
             scenario: scenario,
+            recencyHalfLifeHours: recencyHalfLifeHours,
             now: now,
             calendar: calendar
         )

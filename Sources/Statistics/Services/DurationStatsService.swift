@@ -32,11 +32,13 @@ public struct DurationStatsService {
         grouping: AverageDurationGrouping,
         outlierPolicy: OutlierPolicy,
         scenario: AverageDurationScenario = .all,
+        recencyHalfLifeHours: Double? = nil,
         now: Date = .now,
         calendar: Calendar = .current
     ) -> (overall: TimeInterval, groups: [GroupedAverage]) {
         guard !feeds.isEmpty else { return (0, []) }
 
+        // Completed feeds within window
         let windowed = windowedFeeds(
             feeds: feeds,
             window: window,
@@ -44,32 +46,55 @@ public struct DurationStatsService {
             calendar: calendar
         )
 
-        let overall = overallAverage(
-            durations: windowed.compactMap { entry in entry.effectiveDuration(use: entry.breastUnits) },
-            outlierPolicy: outlierPolicy
-        )
+        // Build samples: only entries that have breastUnits; average per feed is sum(units)
+        let samples: [(date: Date, value: TimeInterval)] = windowed.compactMap { e in
+            guard !e.breastUnits.isEmpty else { return nil }
+            return (e.startTime, e.breastUnits.reduce(0) { $0 + $1.duration })
+        }
+
+        // Apply outlier filter (IQR) on values only, keeping pairs by bounds
+        let overall: TimeInterval = {
+            let kept = applyIQRIfNeeded(samples, policy: outlierPolicy)
+            return weightedMean(kept, halfLifeHours: recencyHalfLifeHours, now: now)
+        }()
 
         switch grouping {
         case .none:
             return (overall, [])
 
         case .breast:
-            let buckets = Dictionary(grouping: windowed, by: { $0.breast })
-                .compactMap { (breast, entries) -> GroupedAverage? in
-                    let vals = filteredDurations(entries.compactMap { entry in entry.effectiveDuration(use: entry.breastUnits) }, outlierPolicy: outlierPolicy)
-                    guard !vals.isEmpty else { return nil }
-                    let avg = vals.reduce(0,+) / Double(vals.count)
-                    return .init(label: breast.adjectiveLabel, average: avg, count: vals.count)
-                }
-                .sorted { $0.label < $1.label }
-            return (overall, buckets)
+            // Build per-breast samples summing unit durations for that breast per feed
+            var left: [(Date, TimeInterval)] = []
+            var right: [(Date, TimeInterval)] = []
+            left.reserveCapacity(samples.count)
+            right.reserveCapacity(samples.count)
+            for e in windowed {
+                guard !e.breastUnits.isEmpty else { continue }
+                let l = e.breastUnits.filter { $0.breast == .left }.reduce(0) { $0 + $1.duration }
+                let r = e.breastUnits.filter { $0.breast == .right }.reduce(0) { $0 + $1.duration }
+                if l > 0 { left.append((e.startTime, l)) }
+                if r > 0 { right.append((e.startTime, r)) }
+            }
+            func make(label: String, smps: [(Date, TimeInterval)]) -> GroupedAverage? {
+                guard !smps.isEmpty else { return nil }
+                let kept = applyIQRIfNeeded(smps, policy: outlierPolicy)
+                let avg = weightedMean(kept, halfLifeHours: recencyHalfLifeHours, now: now)
+                return .init(label: label, average: avg, count: kept.count)
+            }
+            let groups = [
+                make(label: Breast.left.adjectiveLabel, smps: left),
+                make(label: Breast.right.adjectiveLabel, smps: right)
+            ].compactMap { $0 }
+            return (overall, groups.sorted { $0.label < $1.label })
 
         case .timeOfDay:
             let buckets = timeOfDayBuckets(
                 feeds: windowed,
                 scenario: scenario,
                 outlierPolicy: outlierPolicy,
-                calendar: calendar
+                recencyHalfLifeHours: recencyHalfLifeHours,
+                calendar: calendar,
+                now: now
             )
             return (overall, buckets)
         @unknown default:
@@ -239,7 +264,9 @@ public struct DurationStatsService {
         feeds: [FeedingLogEntry],
         scenario: AverageDurationScenario,
         outlierPolicy: OutlierPolicy,
-        calendar: Calendar
+        recencyHalfLifeHours: Double?,
+        calendar: Calendar,
+        now: Date
     ) -> [GroupedAverage] {
         let grouped = Dictionary(grouping: feeds, by: { (entry: FeedingLogEntry) -> TimeOfDaySlot in
             let slot: TimeOfDaySlot = calendar.timeOfDaySlot(for: entry.startTime)
@@ -252,11 +279,63 @@ public struct DurationStatsService {
         let order: [TimeOfDaySlot] = [.morning, .afternoon, .evening, .night]
         return order.compactMap { s -> GroupedAverage? in
             guard let entries = grouped[s] else { return nil }
-            let vals = filteredDurations(entries.compactMap { entry in entry.effectiveDuration(use: entry.breastUnits) }, outlierPolicy: outlierPolicy)
-            guard !vals.isEmpty else { return nil }
-            let avg = vals.reduce(0,+) / Double(vals.count)
-            return .init(label: s.localizedLabel, average: avg, count: vals.count)
+            // samples per entry using units-only
+            let smps: [(Date, TimeInterval)] = entries.compactMap { e in
+                guard !e.breastUnits.isEmpty else { return nil }
+                return (e.startTime, e.breastUnits.reduce(0) { $0 + $1.duration })
+            }
+            let kept = applyIQRIfNeeded(smps, policy: outlierPolicy)
+            guard !kept.isEmpty else { return nil }
+            let avg = weightedMean(kept, halfLifeHours: recencyHalfLifeHours, now: now)
+            return .init(label: s.localizedLabel, average: avg, count: kept.count)
         }
+    }
+
+    // MARK: - IQR filtering with bounds (to retain dates)
+    private func applyIQRIfNeeded(_ samples: [(Date, TimeInterval)], policy: OutlierPolicy) -> [(Date, TimeInterval)] {
+        switch policy {
+        case .includeAll:
+            return samples
+        case .excludeIQR:
+            let values = samples.map { $0.1 }
+            guard let bounds = iqrBounds(values) else { return samples }
+            let low = bounds.low, high = bounds.high
+            return samples.filter { $0.1 >= low && $0.1 <= high }
+        }
+    }
+
+    private func iqrBounds(_ values: [TimeInterval]) -> (low: TimeInterval, high: TimeInterval)? {
+        let n = values.count
+        guard n >= 4 else { return nil }
+        let sorted = values.sorted()
+        func q(_ p: Double) -> TimeInterval {
+            let x = max(0, min(Double(n - 1), p * Double(n - 1)))
+            let lo = Int(floor(x)), hi = Int(ceil(x))
+            if lo == hi { return sorted[lo] }
+            let w = x - Double(lo)
+            return sorted[lo] * (1 - w) + sorted[hi] * w
+        }
+        let q1 = q(0.25), q3 = q(0.75), iqr = q3 - q1
+        return (q1 - 1.5 * iqr, q3 + 1.5 * iqr)
+    }
+
+    // MARK: - Recency weighting
+    private func weightedMean(_ samples: [(Date, TimeInterval)], halfLifeHours: Double?, now: Date) -> TimeInterval {
+        guard !samples.isEmpty else { return 0 }
+        guard let hl = halfLifeHours, hl > 0 else {
+            let vals = samples.map { $0.1 }
+            return vals.reduce(0, +) / Double(vals.count)
+        }
+        let tau = hl * 3600.0 / log(2.0)
+        var num: Double = 0
+        var den: Double = 0
+        for (date, value) in samples {
+            let age = max(0, now.timeIntervalSince(date))
+            let w = exp(-age / tau)
+            num += w * value
+            den += w
+        }
+        return den > 0 ? num / den : 0
     }
 }
 
@@ -289,9 +368,11 @@ extension DurationStatsService: TimeOfDayBucketStatsServiceProtocol {
             feeds: windowed,
             scenario: scenario,
             outlierPolicy: outlierPolicy,
-            calendar: calendar
+            recencyHalfLifeHours: recencyHalfLifeHours,
+            calendar: calendar,
+            now: now
         )
-
+        
         let buckets = grouped.compactMap { g -> TimeOfDayBucket? in
             guard let slot = TimeOfDaySlot.allCases.first(where: { $0.localizedLabel == g.label }) else { return nil }
             return TimeOfDayBucket(
