@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 public protocol TimeOfDayBucketStatsServiceProtocol {
     /// Computes average durations overall and per time-of-day bucket for a given window.

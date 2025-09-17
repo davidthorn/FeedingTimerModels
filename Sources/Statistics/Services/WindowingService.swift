@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 /// Date window calculations (days/weeks/months and rolling windows), using
 /// the injected environment for `now` and `calendar`.

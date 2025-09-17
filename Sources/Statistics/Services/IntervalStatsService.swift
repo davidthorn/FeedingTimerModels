@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 public struct IntervalStatsService {
     public let env: StatsEnvironment

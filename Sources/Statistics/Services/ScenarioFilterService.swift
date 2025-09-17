@@ -8,7 +8,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 public struct ScenarioFilterService {
     public let env: StatsEnvironment

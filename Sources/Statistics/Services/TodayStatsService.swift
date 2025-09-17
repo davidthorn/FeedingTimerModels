@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 public struct TodayStatsService {
     public let env: StatsEnvironment

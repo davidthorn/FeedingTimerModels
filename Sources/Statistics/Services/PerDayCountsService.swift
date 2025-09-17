@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 public struct PerDayCountsService {
     public let env: StatsEnvironment

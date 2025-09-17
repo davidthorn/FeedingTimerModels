@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 /// Computes overall summary stats across all completed feeds: total duration,
 /// average duration, and average start-to-start interval with sensible

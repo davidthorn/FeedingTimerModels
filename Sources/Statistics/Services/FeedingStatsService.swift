@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FeedingTimerModels
+import Models
 
 /// Facade for high-level feeding statistics.
 /// Delegates core computations to extracted sub-services to keep a thin surface
