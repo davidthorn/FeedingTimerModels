@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum FeedingCue: String, CaseIterable, Identifiable, Codable {
+public enum FeedingCue: String, CaseIterable, Identifiable, Codable, Sendable {
     case rooting = "Rooting"
     case suckingFists = "Sucking fists"
     case crying = "Crying"

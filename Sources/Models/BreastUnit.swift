@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct BreastUnit: Codable, Hashable {
+public struct BreastUnit: Codable, Hashable, Sendable {
     public let breast: Breast
     public let duration: TimeInterval
     public let startTime: Date
