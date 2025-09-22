@@ -4,7 +4,7 @@
 //
 //  Backport for Date.now on older macOS versions.
 //
-
+#if os(macOS)
 import Foundation
 
 extension Date {
@@ -13,4 +13,4 @@ extension Date {
     @available(macOS, introduced: 10.15, obsoleted: 12.0)
     public static var now: Date { Date() }
 }
-
+#endif
