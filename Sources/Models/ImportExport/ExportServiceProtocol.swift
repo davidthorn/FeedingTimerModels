@@ -13,4 +13,7 @@ public protocol ExportServiceProtocol: AnyObject {
     var feedsPublisher: Published<[FeedingLogEntry]>.Publisher { get }
     var feeds: [FeedingLogEntry] { get }
     var totalCount: Int { get }
+    
+    func replaceAllData(with newFeeds: [FeedingLogEntry]) async throws
+    func updateFeeds(_ newFeeds: [FeedingLogEntry]) async
 }
