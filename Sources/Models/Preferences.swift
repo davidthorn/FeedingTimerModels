@@ -56,7 +56,7 @@ public final class Preferences: ObservableObject {
         didSet { defaults.set(deviceName, forKey: Key.deviceName) }
     }
 
-    @Published var activeFeedState: ActiveFeedState? {
+    @Published public var activeFeedState: ActiveFeedState? {
         didSet {
             switch activeFeedState {
             case .some(let state):
