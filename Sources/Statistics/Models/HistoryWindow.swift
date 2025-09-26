@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum HistoryWindow: Int, CaseIterable, Hashable, Identifiable {
+public enum HistoryWindow: Int, CaseIterable, Hashable, Identifiable, Sendable {
     private static let key = "TimeSpentCompact.daysBack"
     
     case last3d = 3

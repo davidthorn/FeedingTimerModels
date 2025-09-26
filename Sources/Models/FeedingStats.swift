@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FeedingStats {
+public struct FeedingStats: Codable, Equatable, Hashable, Sendable {
     public let totalDuration: TimeInterval
     public let averageDuration: TimeInterval
     public let averageInterval: TimeInterval

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FeedingLogDay: Hashable {
+public struct FeedingLogDay: Hashable, Sendable {
     public let day: Date
     public init(day: Date) {
         self.day = day

@@ -9,7 +9,7 @@
 
 /// Centralised storage keys for all StatCards in the app.
 /// Used to persist expand/collapse state via UserDefaults.
-public enum StatCardPersistenceKey: String {
+public enum StatCardPersistenceKey: String, Sendable {
     case averageDuration       = "statcard.averageDuration"
     case averageInterval       = "statcard.averageInterval"
     case totalDurationToday    = "statcard.totalDurationToday"

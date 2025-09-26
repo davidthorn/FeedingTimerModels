@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ActiveFeedSnapshot: Codable, Equatable {
+public struct ActiveFeedSnapshot: Codable, Equatable, Sendable {
     public let deviceID: String
     public let feed: FeedingLogEntry
     public let activeSegmentStart: Date?

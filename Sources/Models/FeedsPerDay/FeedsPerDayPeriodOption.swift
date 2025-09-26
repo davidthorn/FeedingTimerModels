@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum FeedsPerDayPeriodOption: String, CaseIterable, Codable, Hashable, Identifiable {
+public enum FeedsPerDayPeriodOption: String, CaseIterable, Codable, Hashable, Identifiable, Sendable {
     
     private static let key = "FeedsPerDay.period"
     

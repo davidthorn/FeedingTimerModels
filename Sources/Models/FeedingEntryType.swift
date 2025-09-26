@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum FeedingEntryType: Codable {
+public enum FeedingEntryType: Codable, Sendable {
     case snack
     case cluster
     case normal

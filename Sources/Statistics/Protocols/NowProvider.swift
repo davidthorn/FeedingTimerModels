@@ -7,6 +7,6 @@
 
 import Foundation
 
-public protocol NowProvider {
+public protocol NowProvider: Sendable {
     var now: Date { get }
 }

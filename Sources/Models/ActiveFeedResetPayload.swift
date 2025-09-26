@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ActiveFeedResetPayload: Codable, Equatable {
+public struct ActiveFeedResetPayload: Codable, Equatable, Sendable {
     public let deviceID: String
     public let lastFeed: FeedingLogEntry?
     public init(deviceID: String, lastFeed: FeedingLogEntry?) {

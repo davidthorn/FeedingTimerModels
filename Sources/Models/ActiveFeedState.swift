@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ActiveFeedState: Codable, Equatable {
+public struct ActiveFeedState: Codable, Equatable, Sendable {
     public var feed: FeedingLogEntry
     public var activeSegmentStart: Date?
     public var activeSegmentBreast: Breast?

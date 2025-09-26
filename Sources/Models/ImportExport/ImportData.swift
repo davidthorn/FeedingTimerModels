@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ImportData: Codable {
+public struct ImportData: Codable, Sendable {
     public let feeds: [FeedingLogEntry]
     public let transferType: DataExportPresetRange
     public init(feeds: [FeedingLogEntry], transferType: DataExportPresetRange) {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct BreastSelectionPayload: Codable, Equatable {
+public struct BreastSelectionPayload: Codable, Equatable, Sendable {
     public let deviceID: String
     public let breast: Breast
     public let updatedAt: Date

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum FeedInProgressDisplayMode: Hashable {
+public enum FeedInProgressDisplayMode: Hashable, Sendable {
     case total
     case split
 }

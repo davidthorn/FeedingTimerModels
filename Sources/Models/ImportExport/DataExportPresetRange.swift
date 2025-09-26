@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum DataExportPresetRange: String, CaseIterable, Identifiable, Codable {
+public enum DataExportPresetRange: String, CaseIterable, Identifiable, Codable, Sendable {
     case last24Hours
     case last3Days
     case last7Days

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PendingBreastSelection: Equatable, Codable {
+public struct PendingBreastSelection: Equatable, Codable, Sendable {
     public let breast: Breast
     public let updatedAt: Date
     public init(breast: Breast, updatedAt: Date) {

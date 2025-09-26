@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct BabyInformationPayload: Codable, Equatable {
+public struct BabyInformationPayload: Codable, Equatable, Sendable {
     public let deviceID: String
     public let babyName: String
     public let dueDate: Date

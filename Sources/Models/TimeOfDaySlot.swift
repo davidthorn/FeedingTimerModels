@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TimeOfDaySlot: String, CaseIterable {
+public enum TimeOfDaySlot: String, CaseIterable, Sendable {
     case night, morning, afternoon, evening
     
     public var localizedLabel: String {

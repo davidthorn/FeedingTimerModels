@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AdaptiveInfoGridItem: Identifiable, Hashable {
+public struct AdaptiveInfoGridItem: Identifiable, Hashable, Sendable {
     public let id = UUID()
     public let icon: String
     public let title: String

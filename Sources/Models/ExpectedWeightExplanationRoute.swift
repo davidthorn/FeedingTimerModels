@@ -7,6 +7,6 @@
 
 import Foundation
 
-public struct ExpectedWeightExplanationRoute: Hashable {
+public struct ExpectedWeightExplanationRoute: Hashable, Sendable {
     public init(){ }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct OldFeedingLogEntry: Identifiable, Codable, Equatable, Hashable {
+public struct OldFeedingLogEntry: Identifiable, Codable, Equatable, Hashable, Sendable {
     public let id: UUID
     public var startTime: Date
     public var endTime: Date?
