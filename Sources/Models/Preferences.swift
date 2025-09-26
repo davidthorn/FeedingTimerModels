@@ -1,6 +1,6 @@
 //
 //  Preferences.swift
-//  FeedingTimer
+//  FeedingTimerModels
 //
 //  Centralized user preferences backed by UserDefaults.
 //  Expose as an EnvironmentObject for app-wide access.
@@ -20,9 +20,12 @@ public final class Preferences: ObservableObject {
         static let birthHeight = "birthHeight"
         static let allowBroadcasting = "allowBroadcasting"
         static let deviceName = "deviceName"
+        static let feedData = "activeFeed.snapshot"
     }
 
     private let defaults: UserDefaults
+    private static let encoder = JSONEncoder()
+    private static let decoder = JSONDecoder()
 
     // Published properties
     @Published public var babyName: String {
@@ -53,6 +56,25 @@ public final class Preferences: ObservableObject {
         didSet { defaults.set(deviceName, forKey: Key.deviceName) }
     }
 
+    @Published var activeFeedState: ActiveFeedState? {
+        didSet {
+            switch activeFeedState {
+            case .some(let state):
+                do {
+                    let data = try Self.encoder.encode(state)
+                    defaults.set(data, forKey: Key.feedData)
+                } catch {
+                    // Keep the previous value in UserDefaults if encoding fails
+                    #if DEBUG
+                    print("Preferences: Failed to encode ActiveFeedState: \(error)")
+                    #endif
+                }
+            case .none:
+                defaults.removeObject(forKey: Key.feedData)
+            }
+        }
+    }
+    
     public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
 
@@ -63,6 +85,11 @@ public final class Preferences: ObservableObject {
         self.birthHeight = defaults.object(forKey: Key.birthHeight) as? Double ?? 50.0
         self.allowBroadcasting = defaults.object(forKey: Key.allowBroadcasting) as? Bool ?? false
         self.deviceName = defaults.string(forKey: Key.deviceName) ?? ""
+        if let data = defaults.data(forKey: Key.feedData) {
+            self.activeFeedState = try? Self.decoder.decode(ActiveFeedState.self, from: data)
+        } else {
+            self.activeFeedState = nil
+        }
     }
 
     public func resetAll() {
@@ -73,5 +100,7 @@ public final class Preferences: ObservableObject {
         birthHeight = 50.0
         allowBroadcasting = false
         deviceName = ""
+        activeFeedState = nil
     }
 }
+

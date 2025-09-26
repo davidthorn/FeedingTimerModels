@@ -1,6 +1,6 @@
 //
 //  FeedingCue.swift
-//  Feeding Log
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 23.07.25.
 //

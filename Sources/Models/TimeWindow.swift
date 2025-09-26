@@ -1,6 +1,6 @@
 //
 //  TimeWindow.swift
-//  FeedingTimer
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 23.08.25.
 //

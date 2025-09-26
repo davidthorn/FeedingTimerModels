@@ -1,6 +1,6 @@
 //
 //  TimeOfDaySlot.swift
-//  FeedingTimer
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 17.09.25.
 //

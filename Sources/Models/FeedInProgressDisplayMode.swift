@@ -1,6 +1,6 @@
 //
 //  FeedInProgressDisplayMode.swift
-//  FeedingTimer
+//  FeedingTimerModels
 //
 //  Created by Assistant on 01.09.25.
 //

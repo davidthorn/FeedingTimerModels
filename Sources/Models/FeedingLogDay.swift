@@ -1,6 +1,6 @@
 //
 //  FeedingLogDay.swift
-//  FeedingTimer
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 06.08.25.
 //

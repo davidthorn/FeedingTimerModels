@@ -1,6 +1,6 @@
 //
 //  DisplayLinkProxy.swift
-//  FeedingTimer
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 11.08.25.
 //

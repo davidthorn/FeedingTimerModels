@@ -1,6 +1,6 @@
 //
 //  FeedingLogEntry.swift
-//  Models
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 19.07.25.
 //

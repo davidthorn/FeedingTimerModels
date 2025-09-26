@@ -1,6 +1,6 @@
 //
 //  AverageDurationBookmark.swift
-//  FeedingTimer
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 14.08.25.
 //

@@ -1,6 +1,6 @@
 //
 //  FeedingState.swift
-//  Feeding Log
+//  FeedingTimerModels
 //
 //  Created by David Thorn on 30.07.25.
 //
