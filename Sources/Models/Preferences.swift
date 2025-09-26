@@ -19,6 +19,7 @@ public final class Preferences: ObservableObject {
         static let birthWeight = "birthWeight"
         static let birthHeight = "birthHeight"
         static let allowBroadcasting = "allowBroadcasting"
+        static let peerSyncConfiguration = "peerSyncConfiguration"
         static let deviceName = "deviceName"
         static let feedData = "activeFeed.snapshot"
     }
@@ -48,8 +49,8 @@ public final class Preferences: ObservableObject {
         didSet { defaults.set(birthHeight, forKey: Key.birthHeight) }
     }
 
-    @Published public var allowBroadcasting: Bool {
-        didSet { defaults.set(allowBroadcasting, forKey: Key.allowBroadcasting) }
+    @Published public var peerSyncConfiguration: PeerSyncConfiguration {
+        didSet { savePeerSyncConfiguration(peerSyncConfiguration) }
     }
 
     @Published public var deviceName: String {
@@ -83,12 +84,34 @@ public final class Preferences: ObservableObject {
         self.birthDate = Date(timeIntervalSince1970: defaults.object(forKey: Key.birthDate) as? Double ?? Date().timeIntervalSince1970)
         self.birthWeight = defaults.object(forKey: Key.birthWeight) as? Double ?? 3.2
         self.birthHeight = defaults.object(forKey: Key.birthHeight) as? Double ?? 50.0
-        self.allowBroadcasting = defaults.object(forKey: Key.allowBroadcasting) as? Bool ?? false
+        
+        let loadedConfiguration: PeerSyncConfiguration
+        if let data = defaults.data(forKey: Key.peerSyncConfiguration),
+           let decoded = try? Self.decoder.decode(PeerSyncConfiguration.self, from: data) {
+            loadedConfiguration = decoded
+        } else if let legacyAllow = defaults.object(forKey: Key.allowBroadcasting) as? Bool {
+            loadedConfiguration = PeerSyncConfiguration(canSend: legacyAllow)
+        } else {
+            loadedConfiguration = PeerSyncConfiguration()
+        }
+        
+        self.peerSyncConfiguration = loadedConfiguration
         self.deviceName = defaults.string(forKey: Key.deviceName) ?? ""
+        
         if let data = defaults.data(forKey: Key.feedData) {
             self.activeFeedState = try? Self.decoder.decode(ActiveFeedState.self, from: data)
         } else {
             self.activeFeedState = nil
+        }
+    }
+
+    public var allowBroadcasting: Bool {
+        get { peerSyncConfiguration.isEnabled && peerSyncConfiguration.canSend }
+        set {
+            var updated = peerSyncConfiguration
+            updated.isEnabled = updated.isEnabled || newValue
+            updated.canSend = newValue
+            peerSyncConfiguration = updated
         }
     }
 
@@ -98,9 +121,14 @@ public final class Preferences: ObservableObject {
         birthDate = Date()
         birthWeight = 3.2
         birthHeight = 50.0
-        allowBroadcasting = false
+        peerSyncConfiguration = PeerSyncConfiguration()
         deviceName = ""
         activeFeedState = nil
     }
-}
 
+    private func savePeerSyncConfiguration(_ value: PeerSyncConfiguration) {
+        guard let data = try? Self.encoder.encode(value) else { return }
+        defaults.set(data, forKey: Key.peerSyncConfiguration)
+        defaults.set(value.isEnabled && value.canSend, forKey: Key.allowBroadcasting)
+    }
+}
