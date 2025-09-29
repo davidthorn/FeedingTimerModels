@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Models
 
 public struct SystemNowProvider: NowProvider {
     public var now: Date { Date() }

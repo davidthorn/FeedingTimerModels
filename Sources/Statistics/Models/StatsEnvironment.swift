@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import Models
 
 public struct StatsEnvironment: Sendable {
     public let nowProvider: NowProvider
