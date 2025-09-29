@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct ActiveBreastingFeedState {
-    public struct BreastInfo {
+public struct ActiveBreastingFeedState: Codable, Sendable {
+    public struct BreastInfo: Codable, Sendable {
         public let last: Breast?
         public let current: Breast
         public init(last: Breast?, current: Breast) {

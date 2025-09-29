@@ -22,6 +22,7 @@ public final class Preferences: ObservableObject {
         static let peerSyncConfiguration = "peerSyncConfiguration"
         static let deviceName = "deviceName"
         static let feedData = "activeFeed.snapshot"
+        static let activeBreastfeedState = "activeBreastfeedState.snapshot"
     }
 
     private let defaults: UserDefaults
@@ -76,6 +77,26 @@ public final class Preferences: ObservableObject {
         }
     }
     
+    @Published public var activeBreastFeedState: ActiveBreastingFeedState? {
+        didSet {
+            switch activeBreastFeedState {
+            case .some(let state):
+                do {
+                    let data = try Self.encoder.encode(state)
+                    defaults.set(data, forKey: Key.activeBreastfeedState)
+                } catch {
+                    // Keep the previous value in UserDefaults if encoding fails
+#if DEBUG
+                    print("Preferences: Failed to encode ActiveBreastingFeedState: \(error)")
+#endif
+                }
+            case .none:
+                defaults.removeObject(forKey: Key.activeBreastfeedState)
+            }
+        }
+    }
+    
+    
     public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
 
@@ -103,6 +124,12 @@ public final class Preferences: ObservableObject {
         } else {
             self.activeFeedState = nil
         }
+        
+        if let data = defaults.data(forKey: Key.activeBreastfeedState) {
+            self.activeBreastFeedState = try? Self.decoder.decode(ActiveBreastingFeedState.self, from: data)
+        } else {
+            self.activeBreastFeedState = nil
+        }
     }
 
     public var allowBroadcasting: Bool {
@@ -124,6 +151,7 @@ public final class Preferences: ObservableObject {
         peerSyncConfiguration = PeerSyncConfiguration()
         deviceName = ""
         activeFeedState = nil
+        activeBreastFeedState = nil
     }
 
     private func savePeerSyncConfiguration(_ value: PeerSyncConfiguration) {
