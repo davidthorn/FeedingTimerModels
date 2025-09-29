@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum FeedingState: Sendable {
+public enum FeedingState: Sendable, Codable {
     case waiting
     case feeding
     case completed

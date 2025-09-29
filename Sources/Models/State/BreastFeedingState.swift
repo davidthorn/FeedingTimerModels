@@ -8,7 +8,7 @@
 import Foundation
 
 public enum BreastFeedingState: Codable, Sendable {
-    case none
+    case ready
     case feeding
     case paused
     case completed

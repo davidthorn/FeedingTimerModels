@@ -8,15 +8,37 @@
 import Foundation
 
 public extension FeedingLogEntry {
+    
+    static func start(with breast: Breast, nowProvider: NowProvider) -> FeedingLogEntry {
+        let now = nowProvider.now
+        return .init(
+            id: UUID(),
+            startTime: now,
+            cues: [],
+            breast: breast,
+            breastUnits: [
+                
+            ],
+            createdAt: now,
+            lastUpdatedAt: now
+        )
+    }
+    
     func pause(with state: ActiveBreastingFeedState, nowProvider: NowProvider) -> FeedingLogEntry {
+        guard let current = state.history?.current, current.id == id else {
+            fatalError("There should be history pause a feed")
+        }
         
         let now = nowProvider.now
         var units = breastUnits
         
+        // This was set as the startTime when start was called
+        let startTime = state.lastUpdatedAt
+        
         let newUnit = BreastUnit(
             breast: state.breastInfo.current,
-            duration: now.timeIntervalSince(state.lastUpdated),
-            startTime: state.startTime,
+            duration: now.timeIntervalSince(startTime),
+            startTime: startTime,
             endTime: now
         )
         
@@ -30,18 +52,24 @@ public extension FeedingLogEntry {
             breastUnits: units,
             createdAt: createdAt,
             lastUpdatedAt: now
-            
         )
     }
     
     func stop(with state: ActiveBreastingFeedState, nowProvider: NowProvider) -> FeedingLogEntry {
+        guard let current = state.history?.current, current.id == id else {
+            fatalError("There should be history pause a feed")
+        }
+
         let now = nowProvider.now
         var units = breastUnits
         
+        // This was set as the startTime when start was called
+        let startTime = state.lastUpdatedAt
+        
         let newUnit = BreastUnit(
             breast: state.breastInfo.current,
-            duration: now.timeIntervalSince(state.startTime),
-            startTime: state.startTime,
+            duration: now.timeIntervalSince(startTime),
+            startTime: startTime,
             endTime: now
         )
         
