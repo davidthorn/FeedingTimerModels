@@ -11,6 +11,10 @@ public struct ActiveBreastingFeedState {
     public struct BreastInfo {
         let last: Breast?
         let current: Breast
+        public init(last: Breast?, current: Breast) {
+            self.last = last
+            self.current = current
+        }
     }
     public let state: BreastFeedingState
     public let breastInfo: BreastInfo
