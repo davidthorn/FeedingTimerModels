@@ -9,8 +9,8 @@ import Foundation
 
 public struct ActiveBreastingFeedState {
     public struct BreastInfo {
-        let last: Breast?
-        let current: Breast
+        public let last: Breast?
+        public let current: Breast
         public init(last: Breast?, current: Breast) {
             self.last = last
             self.current = current
