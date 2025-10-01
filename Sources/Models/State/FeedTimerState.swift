@@ -97,4 +97,12 @@ public struct FeedTimerState: Codable, Sendable {
         let gap = current.startTime.timeIntervalSince(previousEnd)
         gapSinceLast = max(0, gap)
     }
+    
+    public func getMostRecentFeed(from feeds: [FeedingLogEntry]) -> FeedingLogEntry? {
+        if let cf = currentFeed, cf.endTime != nil { return cf }
+        return feeds
+            .filter { $0.endTime != nil }
+            .sorted { $0.startTime > $1.startTime }
+            .first
+    }
 }
