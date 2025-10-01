@@ -14,11 +14,10 @@ public extension FeedingLogEntry {
         return .init(
             id: UUID(),
             startTime: now,
+            endTime: nil,
             cues: [],
             breast: breast,
-            breastUnits: [
-                
-            ],
+            breastUnits: [],
             createdAt: now,
             lastUpdatedAt: now
         )
@@ -47,9 +46,29 @@ public extension FeedingLogEntry {
         return .init(
             id: id,
             startTime: startTime,
+            endTime: now,
             cues: cues,
             breast: breast,
             breastUnits: units,
+            createdAt: createdAt,
+            lastUpdatedAt: now
+        )
+    }
+    
+    func resume(with state: ActiveBreastingFeedState, nowProvider: NowProvider) -> FeedingLogEntry {
+        guard let current = state.history?.current, current.id == id, state.state == .paused else {
+            fatalError("There should be history pause a feed")
+        }
+        
+        let now = nowProvider.now
+        
+        return .init(
+            id: id,
+            startTime: startTime,
+            endTime: nil,
+            cues: cues,
+            breast: breast,
+            breastUnits: breastUnits,
             createdAt: createdAt,
             lastUpdatedAt: now
         )

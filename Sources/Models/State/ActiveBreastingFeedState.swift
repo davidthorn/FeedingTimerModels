@@ -77,3 +77,23 @@ public struct ActiveBreastingFeedState: Codable, Sendable {
         .init(state: .completed, breastInfo: breastInfo, history: history, lastUpdatedAt: lastUpdatedAt)
     }
 }
+
+public extension ActiveBreastingFeedState {
+    func pausedState(with nowProvider: NowProvider) -> ActiveBreastingFeedState {
+        assert(history != nil)
+        guard let history else { fatalError() }
+        let pausedFeed = history.current.pause(with: self, nowProvider: nowProvider)
+        return .paused(breastInfo: breastInfo, history: .init(current: pausedFeed, last: history.last), lastUpdatedAt: pausedFeed.lastUpdatedAt)
+    }
+    
+    func resumedState(using breast: Breast, with nowProvider: NowProvider) -> ActiveBreastingFeedState {
+        assert(history != nil)
+        guard let history else { fatalError() }
+        let resumedFeed = history.current.resume(with: self, nowProvider: nowProvider)
+        return .feeding(
+            breastInfo: .init(last: breastInfo.last, current: breast),
+            history: .init(current: resumedFeed, last: history.last),
+            lastUpdatedAt: nowProvider.now
+        )
+    }
+}
