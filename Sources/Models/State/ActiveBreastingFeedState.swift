@@ -30,7 +30,7 @@ public struct ActiveBreastingFeedState: Codable, Sendable {
     // if stop feed, we use the lastUpdatedAt for the startTime of a breastUnit and now from the nowProvider to update lastUpdatedAt and use now as the endTime for breastUnit
     public let lastUpdatedAt: Date
     
-    public init(
+    private init(
         state: BreastFeedingState = .feeding,
         breastInfo: BreastInfo,
         history: FeedHistory?,
@@ -40,5 +40,40 @@ public struct ActiveBreastingFeedState: Codable, Sendable {
         self.breastInfo = breastInfo
         self.history = history
         self.lastUpdatedAt = lastUpdatedAt
+        if state != .ready {
+            assert(history != nil)
+        }
+    }
+    
+    public static func ready(
+        breastInfo: BreastInfo,
+        history: FeedHistory,
+        lastUpdatedAt: Date
+    ) -> ActiveBreastingFeedState {
+        .init(state: .ready, breastInfo: breastInfo, history: history, lastUpdatedAt: lastUpdatedAt)
+    }
+    
+    public static func feeding(
+        breastInfo: BreastInfo,
+        history: FeedHistory,
+        lastUpdatedAt: Date
+    ) -> ActiveBreastingFeedState {
+        .init(state: .feeding, breastInfo: breastInfo, history: history, lastUpdatedAt: lastUpdatedAt)
+    }
+    
+    public static func paused(
+        breastInfo: BreastInfo,
+        history: FeedHistory,
+        lastUpdatedAt: Date
+    ) -> ActiveBreastingFeedState {
+        .init(state: .paused, breastInfo: breastInfo, history: history, lastUpdatedAt: lastUpdatedAt)
+    }
+    
+    public static func completed(
+        breastInfo: BreastInfo,
+        history: FeedHistory,
+        lastUpdatedAt: Date
+    ) -> ActiveBreastingFeedState {
+        .init(state: .completed, breastInfo: breastInfo, history: history, lastUpdatedAt: lastUpdatedAt)
     }
 }
