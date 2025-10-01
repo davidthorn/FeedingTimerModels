@@ -76,6 +76,16 @@ public struct FeedTimerState: Codable, Sendable {
         return choosenBreast == .right
     }
     
+    public func getMostRecentFeed(from feeds: [FeedingLogEntry]) -> FeedingLogEntry? {
+        if let cf = currentFeed, cf.endTime != nil { return cf }
+        return feeds
+            .filter { $0.endTime != nil }
+            .sorted { $0.startTime > $1.startTime }
+            .first
+    }
+    
+    // MARK: - Mutating Methods
+    
     public mutating func handlePendingBreastSelection(_ selection: Breast?) {
         guard feedingState != .feeding else { return }
         guard let selection else { return }
@@ -96,13 +106,5 @@ public struct FeedTimerState: Codable, Sendable {
         let current = completedFeeds[0]
         let gap = current.startTime.timeIntervalSince(previousEnd)
         gapSinceLast = max(0, gap)
-    }
-    
-    public func getMostRecentFeed(from feeds: [FeedingLogEntry]) -> FeedingLogEntry? {
-        if let cf = currentFeed, cf.endTime != nil { return cf }
-        return feeds
-            .filter { $0.endTime != nil }
-            .sorted { $0.startTime > $1.startTime }
-            .first
     }
 }
