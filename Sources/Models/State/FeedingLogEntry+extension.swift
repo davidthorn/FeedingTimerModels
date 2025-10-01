@@ -28,6 +28,7 @@ public extension FeedingLogEntry {
             fatalError("There should be history pause a feed")
         }
         
+        let currentBreast = state.breastInfo.current
         let now = nowProvider.now
         var units = breastUnits
         
@@ -35,7 +36,7 @@ public extension FeedingLogEntry {
         let startTime = state.lastUpdatedAt
         
         let newUnit = BreastUnit(
-            breast: state.breastInfo.current,
+            breast: currentBreast,
             duration: now.timeIntervalSince(startTime),
             startTime: startTime,
             endTime: now
@@ -48,7 +49,7 @@ public extension FeedingLogEntry {
             startTime: startTime,
             endTime: now,
             cues: cues,
-            breast: breast,
+            breast: currentBreast,
             breastUnits: units,
             createdAt: createdAt,
             lastUpdatedAt: now
@@ -61,13 +62,29 @@ public extension FeedingLogEntry {
         }
         
         let now = nowProvider.now
+        let currentBreast = state.breastInfo.current
         
         return .init(
             id: id,
             startTime: startTime,
             endTime: nil,
             cues: cues,
-            breast: breast,
+            breast: currentBreast,
+            breastUnits: breastUnits,
+            createdAt: createdAt,
+            lastUpdatedAt: now
+        )
+    }
+    
+    func restart(with currentBreast: Breast, nowProvider: NowProvider) -> FeedingLogEntry {
+        let now = nowProvider.now
+        
+        return .init(
+            id: id,
+            startTime: startTime,
+            endTime: nil,
+            cues: cues,
+            breast: currentBreast,
             breastUnits: breastUnits,
             createdAt: createdAt,
             lastUpdatedAt: now
@@ -79,6 +96,7 @@ public extension FeedingLogEntry {
             fatalError("There should be history pause a feed")
         }
 
+        let currentBreast = state.breastInfo.current
         let now = nowProvider.now
         var units = breastUnits
         
@@ -86,7 +104,7 @@ public extension FeedingLogEntry {
         let startTime = state.lastUpdatedAt
         
         let newUnit = BreastUnit(
-            breast: state.breastInfo.current,
+            breast: currentBreast,
             duration: now.timeIntervalSince(startTime),
             startTime: startTime,
             endTime: now
@@ -99,7 +117,7 @@ public extension FeedingLogEntry {
             startTime: startTime,
             endTime: now,
             cues: cues,
-            breast: breast,
+            breast: currentBreast,
             breastUnits: units,
             createdAt: createdAt,
             lastUpdatedAt: now
