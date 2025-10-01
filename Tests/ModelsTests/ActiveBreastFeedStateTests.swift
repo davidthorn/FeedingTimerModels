@@ -169,4 +169,73 @@ struct ActiveBreastFeedStateTests {
         #expect(second.startTime == tResume)
         #expect(second.endTime == tStop)
     }
+    
+    // MARK: - Focused tests on ActiveBreastingFeedState transitions
+    @Test("pausedState returns .paused with updated history and timestamp")
+    func pausedState_setsPaused_updatesHistoryAndLastUpdatedAt() async throws {
+        let tStart = Date(timeIntervalSince1970: 1_700_000_000)
+        let tPause = tStart.addingTimeInterval(90)
+        
+        // Start feed at tStart
+        let startClock = MockNowProvider(now: tStart)
+        let initialFeed = FeedingLogEntry.start(with: .left, nowProvider: startClock)
+        let feedingState = ActiveBreastingFeedState.feeding(
+            breastInfo: .init(last: nil, current: .left),
+            history: .init(current: initialFeed, last: nil),
+            lastUpdatedAt: tStart
+        )
+        
+        // Pause via state API at tPause
+        let pauseClock = MockNowProvider(now: tPause)
+        let pausedViaModel = initialFeed.pause(with: feedingState, nowProvider: pauseClock)
+        let pausedState = feedingState.pausedState(with: pauseClock)
+        
+        // Assertions: state, history, timestamps, and breastInfo remain unchanged
+        #expect(pausedState.state == .paused)
+        #expect(pausedState.history?.current == pausedViaModel)
+        #expect(pausedState.lastUpdatedAt == tPause)
+        #expect(pausedViaModel.lastUpdatedAt == tPause)
+        #expect(pausedState.breastInfo.current == .left)
+        #expect(pausedState.breastInfo.last == nil)
+        
+        // The pause should append a unit from lastUpdatedAt(start) to now(pause)
+        let u = try #require(pausedViaModel.breastUnits.first)
+        #expect(u.breast == .left)
+        #expect(u.startTime == tStart)
+        #expect(u.endTime == tPause)
+        #expect(abs(u.duration - tPause.timeIntervalSince(tStart)) < 0.001)
+    }
+    
+    @Test("resumedState returns .feeding with provided current breast and timestamp")
+    func resumedState_setsFeeding_updatesBreastInfoCurrent_andLastUpdatedAt() async throws {
+        let tStart = Date(timeIntervalSince1970: 1_700_000_000)
+        let tPause = tStart.addingTimeInterval(120)
+        let tResume = tStart.addingTimeInterval(300)
+        
+        // Start and then pause
+        let startClock = MockNowProvider(now: tStart)
+        let initialFeed = FeedingLogEntry.start(with: .left, nowProvider: startClock)
+        let feedingState = ActiveBreastingFeedState.feeding(
+            breastInfo: .init(last: nil, current: .left),
+            history: .init(current: initialFeed, last: nil),
+            lastUpdatedAt: tStart
+        )
+        let pauseClock = MockNowProvider(now: tPause)
+        let pausedFeed = initialFeed.pause(with: feedingState, nowProvider: pauseClock)
+        let pausedState = feedingState.pausedState(with: pauseClock)
+        
+        // Resume via state API using right breast at tResume
+        let resumeClock = MockNowProvider(now: tResume)
+        let expectedResumedFeed = pausedFeed.resume(with: pausedState, nowProvider: resumeClock)
+        let resumedState = pausedState.resumedState(using: .right, with: resumeClock)
+        
+        // Assertions: state, history, timestamps, and breastInfo current is updated
+        #expect(resumedState.state == .feeding)
+        #expect(resumedState.history?.current == expectedResumedFeed)
+        #expect(resumedState.lastUpdatedAt == tResume)
+        #expect(resumedState.breastInfo.current == .right)
+        
+        // Per current implementation, `last` is preserved from previous state (remains nil here)
+        #expect(resumedState.breastInfo.last == pausedState.breastInfo.last)
+    }
 }
