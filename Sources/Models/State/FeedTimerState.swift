@@ -19,13 +19,13 @@ public struct FeedTimerState: Codable, Sendable {
     
     public init(
         canSwitchBetweenFeed: Bool,
+        isPaused: Bool,
         lastBreast: Breast = .left,
         choosenBreast: Breast = .left,
         currentFeed: FeedingLogEntry? = nil,
         feedingState: FeedingState = .waiting,
         isVoiceOverRunning: Bool = false,
-        gapSinceLast: TimeInterval? = nil,
-        isPaused: Bool = false
+        gapSinceLast: TimeInterval? = nil
     ) {
         self.canSwitchBetweenFeed = canSwitchBetweenFeed
         self.lastBreast = lastBreast
@@ -34,6 +34,10 @@ public struct FeedTimerState: Codable, Sendable {
         self.feedingState = feedingState
         self.isVoiceOverRunning = isVoiceOverRunning
         self.gapSinceLast = gapSinceLast
+        if isPaused {
+            assert(feedingState == .feeding && canSwitchBetweenFeed)
+        }
+        
         self.isPaused = isPaused
     }
     
@@ -45,7 +49,15 @@ public struct FeedTimerState: Codable, Sendable {
         return feed.endTime != nil
     }
     
+    public var canSwitch: Bool {
+        canSwitchBetweenFeed && !isFeeding
+    }
+    
     public var switchLeftToRightBreastDisabled: Bool {
+        if !canSwitchBetweenFeed {
+            return true
+        }
+        
         if isFeeding && !isPaused {
             return true
         }
@@ -62,6 +74,11 @@ public struct FeedTimerState: Codable, Sendable {
     
     public var switchRightToLeftBreastDisabled: Bool {
         // if isFeeding boths buttons should be disabled
+        
+        if !canSwitchBetweenFeed {
+            return true
+        }
+        
         if isFeeding && !isPaused {
             return true
         }
