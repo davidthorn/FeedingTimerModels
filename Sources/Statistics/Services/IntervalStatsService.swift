@@ -9,7 +9,7 @@
 import Foundation
 import Models
 
-public struct IntervalStatsService {
+public struct IntervalStatsService: Sendable {
     public let env: StatsEnvironment
 
     public init(env: StatsEnvironment = .init()) {

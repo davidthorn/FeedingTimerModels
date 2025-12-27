@@ -8,7 +8,7 @@
 import Foundation
 import Models
 
-public struct ProjectionService {
+public struct ProjectionService: Sendable {
     public let env: StatsEnvironment
 
     public init(env: StatsEnvironment = .init()) {

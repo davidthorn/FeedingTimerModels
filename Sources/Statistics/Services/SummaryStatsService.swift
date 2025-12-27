@@ -11,7 +11,7 @@ import Models
 /// Computes overall summary stats across all completed feeds: total duration,
 /// average duration, and average start-to-start interval with sensible
 /// outlier handling.
-public struct SummaryStatsService {
+public struct SummaryStatsService: Sendable {
     public let env: StatsEnvironment
     
     public init(env: StatsEnvironment = .init()) {

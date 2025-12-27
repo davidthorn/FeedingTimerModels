@@ -10,7 +10,7 @@
 import Foundation
 import Models
 
-public struct ScenarioFilterService {
+public struct ScenarioFilterService: Sendable {
     public let env: StatsEnvironment
 
     public init(env: StatsEnvironment = .init()) {

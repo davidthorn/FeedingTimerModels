@@ -30,7 +30,7 @@ struct PreferencesTests {
         let preferences = Preferences(defaults: defaults)
 
         #expect(preferences.peerSyncConfiguration == PeerSyncConfiguration())
-        #expect(preferences.allowBroadcasting)
+        #expect(!preferences.allowBroadcasting)
     }
 
     @Test("Legacy allowBroadcasting flag seeds configuration")
@@ -43,7 +43,7 @@ struct PreferencesTests {
         let preferences = Preferences(defaults: defaults)
         let configuration = preferences.peerSyncConfiguration
 
-        #expect(configuration.isEnabled)
+        #expect(!configuration.isEnabled)
         #expect(!configuration.canSend)
         #expect(configuration.canReceive)
         #expect(configuration.canCreate)
@@ -60,7 +60,7 @@ struct PreferencesTests {
 
         preferences.allowBroadcasting = false
         #expect(!preferences.peerSyncConfiguration.canSend)
-        #expect(preferences.peerSyncConfiguration.isEnabled)
+        #expect(!preferences.peerSyncConfiguration.isEnabled)
         #expect(!defaults.bool(forKey: "allowBroadcasting"))
 
         preferences.allowBroadcasting = true

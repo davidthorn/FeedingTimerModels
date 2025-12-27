@@ -8,7 +8,7 @@
 import Foundation
 import Models
 
-public struct FeedingStyleService {
+public struct FeedingStyleService: Sendable {
     private let feeds: [FeedingLogEntry]
 
     // Tunables

@@ -15,7 +15,7 @@ import Models
 /// - All helpers return a start bound that is <= end bound.
 /// - "EndExclusive" indicates the returned end is not included in the window.
 /// - Day/Week/Month helpers align to civil boundaries in the provided calendar.
-public struct WindowingService {
+public struct WindowingService: Sendable {
     public let env: StatsEnvironment
 
     public init(env: StatsEnvironment = .init()) {

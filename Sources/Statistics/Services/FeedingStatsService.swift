@@ -11,11 +11,11 @@ import Models
 /// Facade for high-level feeding statistics.
 /// Delegates core computations to extracted sub-services to keep a thin surface
 /// and consistent semantics across the app, while preserving public signatures.
-public struct FeedingStatsService {
+public struct FeedingStatsService: Sendable {
     
     public init() {}
     
-    public struct NextFeedEstimate {
+    public struct NextFeedEstimate: Sendable {
         public let nextFeedTime: Date
         public let interval: TimeInterval
         public init(nextFeedTime: Date, interval: TimeInterval) {

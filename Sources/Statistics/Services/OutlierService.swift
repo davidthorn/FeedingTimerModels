@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct OutlierService {
+public struct OutlierService: Sendable {
     public  let env: StatsEnvironment
 
     public init(env: StatsEnvironment = .init()) {
