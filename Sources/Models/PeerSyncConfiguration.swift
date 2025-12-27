@@ -3,6 +3,7 @@
 //  FeedingTimerModels
 //
 //  Created by David Thorn on 26.09.25.
+//  Created by David Thorn on 27.12.25.
 //
 
 import Foundation
@@ -16,7 +17,7 @@ public struct PeerSyncConfiguration: Equatable, Codable, Sendable {
     public var canDelete: Bool
 
     public init(
-        isEnabled: Bool = true,
+        isEnabled: Bool = false,
         canSend: Bool = true,
         canReceive: Bool = true,
         canCreate: Bool = true,
